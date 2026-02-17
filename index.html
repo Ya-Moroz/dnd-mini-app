@@ -175,30 +175,51 @@
         color: var(--hp-red);
       }
 
-      /* Панель кубиков */
+      /* Панель теперь полностью сливается с фоном #1a1a1a */
       .dice-bar {
         position: fixed;
         bottom: 0;
         left: 0;
         width: 100%;
-        background: #2c2c2c;
+        background: transparent;
         display: flex;
-        justify-content: space-around;
-        padding: 15px 0;
-        border-top: 2px solid var(--gold);
+        justify-content: center; /* Центрируем кубики */
+        gap: 25px; /* Равномерный отступ между ними */
+        padding: 20px 0;
         z-index: 100;
+        pointer-events: none;
       }
+
       .dice-icon {
-        color: var(--bg-paper);
-        font-weight: bold;
-        font-size: 13px;
-        background: #4a0404;
-        padding: 8px;
-        border-radius: 6px;
-        border: 1px solid var(--gold);
-        min-width: 35px;
-        text-align: center;
+        pointer-events: auto;
+        /* Цвета: белый кубик, темно-серый текст */
+        color: #333333;
+        background: #ffffff;
+        border: 2px solid #333333; /* Обводка в цвет шрифта */
+
+        /* Форма: строгий квадрат */
+        aspect-ratio: 1 / 1; /* Делает высоту равной ширине */
+        width: 60px; /* Фиксированная ширина */
+        border-radius: 4px; /* Минимальное скругление для реализма */
+
+        /* Шрифт и центрирование текста */
+        font-weight: 900;
+        font-size: 18px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
         cursor: pointer;
+        /* Тень для объема на светлом фоне */
+        box-shadow: 0 4px 0px rgba(0, 0, 0, 0.2);
+        transition: all 0.1s ease;
+      }
+
+      /* Эффект нажатия (физическое вдавливание) */
+      .dice-icon:active {
+        transform: translateY(2px);
+        box-shadow: 0 2px 0px rgba(0, 0, 0, 0.2);
+        background: #f0f0f0; /* Легкое потемнение при нажатии */
       }
     </style>
   </head>
@@ -256,12 +277,12 @@
     </div>
 
     <div class="dice-bar" id="dice-bar" style="display: none">
-      <div class="dice-icon" onclick="rollPure(4)">d4</div>
-      <div class="dice-icon" onclick="rollPure(6)">d6</div>
-      <div class="dice-icon" onclick="rollPure(8)">d8</div>
-      <div class="dice-icon" onclick="rollPure(10)">d10</div>
-      <div class="dice-icon" onclick="rollPure(12)">d12</div>
-      <div class="dice-icon" onclick="rollPure(20)">d20</div>
+      <div class="dice-icon" onclick="rollPure(4)">D4</div>
+      <div class="dice-icon" onclick="rollPure(6)">D6</div>
+      <div class="dice-icon" onclick="rollPure(8)">D8</div>
+      <div class="dice-icon" onclick="rollPure(10)">D10</div>
+      <div class="dice-icon" onclick="rollPure(12)">D12</div>
+      <div class="dice-icon" onclick="rollPure(20)">D20</div>
     </div>
 
     <script>
