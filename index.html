@@ -1,169 +1,372 @@
 <!DOCTYPE html>
 <html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Critical Roll — Master App</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no"
+    />
+    <title>D&D Session Tool</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* D&D Aesthetics */
-        body {
-            background: #1a1a1a; /* Темный фон подземелья */
-            color: #e0d1b0; /* Цвет старого пергамента */
-            font-family: 'Georgia', serif;
-            margin: 0;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-        }
+      :root {
+        --bg-paper: #f4ece1;
+        --text-main: #4a3427;
+        --border: #d6cbb3;
+        --hp-red: #8b2c2c;
+        --ac-blue: #2c5a8b;
+        --speed-green: #2c8b5a;
+        --gold: #8b5a2b;
+      }
 
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #8b0000;
-            margin-bottom: 20px;
-            width: 100%;
-        }
+      body {
+        background: #1a1a1a;
+        color: var(--text-main);
+        font-family: -apple-system, sans-serif;
+        margin: 0;
+        padding: 15px;
+        padding-bottom: 120px;
+      }
 
-        .header h1 {
-            color: #d4af37; /* Золотой */
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin: 10px 0;
-            font-size: 1.5rem;
-        }
+      #selector {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+      }
+      .char-btn {
+        background: var(--bg-paper);
+        padding: 25px 10px;
+        border-radius: 12px;
+        text-align: center;
+        border: 2px solid var(--border);
+        font-weight: bold;
+      }
 
-        /* Экран результата броска */
-        .dice-display {
-            background: radial-gradient(circle, #2c2c2c 0%, #1a1a1a 100%);
-            width: 120px;
-            height: 120px;
-            border: 4px solid #d4af37;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3rem;
-            font-weight: bold;
-            color: #fff;
-            text-shadow: 0 0 10px #ff0000;
-            margin-bottom: 30px;
-            box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
-        }
+      #sheet {
+        background: var(--bg-paper);
+        border-radius: 15px;
+        padding: 20px;
+        display: none;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+      .back-link {
+        color: var(--ac-blue);
+        cursor: pointer;
+        font-weight: bold;
+        margin-bottom: 15px;
+        display: block;
+      }
+      .header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+      }
+      #det-name {
+        margin: 0;
+        font-size: 24px;
+        color: #5a2e17;
+        border-bottom: 1px dashed var(--gold);
+        outline: none;
+      }
 
-        /* Сетка кнопок кубиков */
-        .dice-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            width: 100%;
-            max-width: 300px;
-        }
+      .top-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .top-box {
+        background: rgba(0, 0, 0, 0.05);
+        padding: 10px;
+        border-radius: 6px;
+        position: relative;
+      }
+      .top-box::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 15%;
+        height: 70%;
+        width: 4px;
+      }
+      .box-hp::before {
+        background: var(--hp-red);
+      }
+      .box-ac::before {
+        background: var(--ac-blue);
+      }
+      .box-speed::before {
+        background: var(--speed-green);
+      }
+      .top-label {
+        font-size: 9px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      .top-val {
+        font-size: 22px;
+        font-weight: 900;
+      }
+      .hp-slider {
+        width: 100%;
+        margin-top: 10px;
+        accent-color: var(--hp-red);
+      }
 
-        .dice-btn {
-            background: #4a0404; /* Темно-красный */
-            color: #e0d1b0;
-            border: 2px solid #d4af37;
-            border-radius: 8px;
-            padding: 15px 5px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.1s;
-            box-shadow: 0 4px 0 #2a0202;
-        }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 20px;
+      }
+      .stat-card {
+        background: #e8e0d0;
+        border-radius: 8px;
+        padding: 10px;
+        text-align: center;
+        border: 1px solid var(--border);
+        cursor: pointer;
+      }
+      .stat-card:active {
+        transform: scale(0.95);
+        background: var(--border);
+      }
+      .stat-label {
+        font-size: 10px;
+        color: var(--gold);
+        font-weight: bold;
+      }
 
-        .dice-btn:active {
-            transform: translateY(4px);
-            box-shadow: 0 0 0 #2a0202;
-            background: #8b0000;
-        }
+      .section-title {
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin: 15px 0 5px;
+        color: var(--gold);
+        border-top: 1px solid var(--border);
+        padding-top: 10px;
+      }
+      .section-content {
+        font-size: 13px;
+        line-height: 1.4;
+        white-space: pre-line;
+      }
 
-        .log {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #888;
-            font-style: italic;
-        }
+      /* Журнал бросков */
+      .log-container {
+        margin-top: 20px;
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 8px;
+        padding: 10px;
+        border: 1px solid var(--border);
+      }
+      .log-entry {
+        font-size: 12px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding: 4px 0;
+        display: flex;
+        justify-content: space-between;
+      }
+      .log-entry:last-child {
+        border: none;
+      }
+      .log-res {
+        font-weight: bold;
+        color: var(--hp-red);
+      }
 
-        /* Анимация броска */
-        .shake {
-            animation: shake 0.2s ease-in-out;
-        }
-
-        @keyframes shake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            20% { transform: translate(-3px, 0px) rotate(-5deg); }
-            40% { transform: translate(3px, 2px) rotate(5deg); }
-            60% { transform: translate(-1px, -1px) rotate(-1deg); }
-            80% { transform: translate(1px, 2px) rotate(0deg); }
-            100% { transform: translate(0px, 0px) rotate(0deg); }
-        }
+      /* Панель кубиков */
+      .dice-bar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #2c2c2c;
+        display: flex;
+        justify-content: space-around;
+        padding: 15px 0;
+        border-top: 2px solid var(--gold);
+        z-index: 100;
+      }
+      .dice-icon {
+        color: var(--bg-paper);
+        font-weight: bold;
+        font-size: 13px;
+        background: #4a0404;
+        padding: 8px;
+        border-radius: 6px;
+        border: 1px solid var(--gold);
+        min-width: 35px;
+        text-align: center;
+        cursor: pointer;
+      }
     </style>
-</head>
-<body>
-
-    <div class="header">
-        <h1>Критический бросок</h1>
+  </head>
+  <body>
+    <div id="selector">
+      <h2 style="grid-column: span 2; text-align: center; color: white">
+        Выберите класс
+      </h2>
     </div>
 
-    <div id="result-box" class="dice-display">?</div>
+    <div id="sheet">
+      <div class="back-link" onclick="location.reload()">← Назад</div>
+      <div class="header">
+        <h1 id="det-name" contenteditable="true">Имя</h1>
+        <div style="text-align: right">
+          <div style="font-size: 9px; color: var(--gold); font-weight: bold">
+            КЛАСС
+          </div>
+          <div id="det-class" style="font-weight: bold; font-size: 14px">
+            ---
+          </div>
+        </div>
+      </div>
 
-    <div class="dice-grid">
-        <button class="dice-btn" onclick="rollDice(4)">d4</button>
-        <button class="dice-btn" onclick="rollDice(6)">d6</button>
-        <button class="dice-btn" onclick="rollDice(8)">d8</button>
-        <button class="dice-btn" onclick="rollDice(10)">d10</button>
-        <button class="dice-btn" onclick="rollDice(12)">d12</button>
-        <button class="dice-btn" onclick="rollDice(20)">d20</button>
+      <div class="top-stats">
+        <div class="top-box box-hp">
+          <div class="top-label">Здоровье</div>
+          <div class="top-val" id="det-hp">0</div>
+          <input type="range" id="hp-range" class="hp-slider" />
+        </div>
+        <div class="top-box box-ac">
+          <div class="top-label">Защита</div>
+          <div class="top-val" id="det-ac">0</div>
+        </div>
+        <div class="top-box box-speed">
+          <div class="top-label">Скорость</div>
+          <div class="top-val" id="det-speed">0</div>
+        </div>
+      </div>
+
+      <div class="stats-grid" id="stats-container"></div>
+
+      <div class="section-title">⚔️ Атаки</div>
+      <div id="det-attacks" class="section-content"></div>
+
+      <div class="section-title">✨ Умения</div>
+      <div id="det-skills" class="section-content"></div>
+
+      <div class="section-title">📜 История бросков</div>
+      <div id="dice-log" class="log-container">
+        <div style="color: #999; font-style: italic; font-size: 11px">
+          Бросков пока не было...
+        </div>
+      </div>
     </div>
 
-    <div class="log" id="dice-log">Нажми на кубик, чтобы бросить...</div>
+    <div class="dice-bar" id="dice-bar" style="display: none">
+      <div class="dice-icon" onclick="rollPure(4)">d4</div>
+      <div class="dice-icon" onclick="rollPure(6)">d6</div>
+      <div class="dice-icon" onclick="rollPure(8)">d8</div>
+      <div class="dice-icon" onclick="rollPure(10)">d10</div>
+      <div class="dice-icon" onclick="rollPure(12)">d12</div>
+      <div class="dice-icon" onclick="rollPure(20)">d20</div>
+    </div>
 
     <script>
-        const tg = window.Telegram.WebApp;
-        tg.ready();
-        tg.expand();
+      const tg = window.Telegram.WebApp;
+      tg.ready();
 
-        // Скрываем стандартную кнопку TG, так как у нас свой интерфейс
-        tg.MainButton.hide();
+      const charFiles = [
+        "tordin.json",
+        "ellana.json",
+        "zephyr.json",
+        "bruno.json",
+      ];
+      const selector = document.getElementById("selector");
+      const sheet = document.getElementById("sheet");
+      const diceBar = document.getElementById("dice-bar");
+      const logBox = document.getElementById("dice-log");
 
-        function rollDice(sides) {
-            const resultBox = document.getElementById('result-box');
-            const log = document.getElementById('dice-log');
-            
-            // Добавляем эффект тряски
-            resultBox.classList.remove('shake');
-            void resultBox.offsetWidth; // Магия для перезапуска анимации
-            resultBox.classList.add('shake');
-
-            // Вибрация (для d20 посильнее)
-            if (sides === 20) {
-                tg.HapticFeedback.notificationOccurred('warning');
-            } else {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
-
-            // Сам бросок
-            const result = Math.floor(Math.random() * sides) + 1;
-            
-            // Вывод результата
-            resultBox.innerText = result;
-            log.innerText = `Выпало ${result} на d${sides}`;
-
-            // Подсветка крита на d20
-            if (sides === 20 && result === 20) {
-                resultBox.style.color = "#ffd700";
-                resultBox.style.textShadow = "0 0 20px #fff";
-            } else if (sides === 20 && result === 1) {
-                resultBox.style.color = "#ff4d4d";
-                resultBox.style.textShadow = "none";
-            } else {
-                resultBox.style.color = "#fff";
-                resultBox.style.textShadow = "0 0 10px #ff0000";
-            }
+      async function init() {
+        for (const file of charFiles) {
+          try {
+            const response = await fetch(`./${file}`);
+            const data = await response.json();
+            const btn = document.createElement("div");
+            btn.className = "char-btn";
+            btn.innerHTML = data.class;
+            btn.onclick = () => renderCharacter(data);
+            selector.appendChild(btn);
+          } catch (e) {
+            console.error(e);
+          }
         }
+      }
+
+      function addToLog(text, result) {
+        // Если это первый бросок, очищаем заглушку
+        if (logBox.innerText.includes("пока не было")) logBox.innerHTML = "";
+
+        const entry = document.createElement("div");
+        entry.className = "log-entry";
+        entry.innerHTML = `<span>${text}</span><span class="log-res">${result}</span>`;
+
+        logBox.prepend(entry); // Добавляем наверх
+
+        // Ограничение в 7 записей
+        if (logBox.children.length > 7) {
+          logBox.removeChild(logBox.lastChild);
+        }
+      }
+
+      function rollPure(sides) {
+        const res = Math.floor(Math.random() * sides) + 1;
+        tg.HapticFeedback.impactOccurred("medium");
+        addToLog(`Чистый d${sides}`, res);
+      }
+
+      function rollStat(name, mod) {
+        const d20 = Math.floor(Math.random() * 20) + 1;
+        const total = d20 + mod;
+        const modStr = mod >= 0 ? `+${mod}` : mod;
+
+        tg.HapticFeedback.notificationOccurred(
+          d20 === 20 ? "success" : d20 === 1 ? "error" : "warning"
+        );
+        addToLog(`${name} (d20(${d20})${modStr})`, total);
+      }
+
+      function renderCharacter(c) {
+        selector.style.display = "none";
+        sheet.style.display = "block";
+        diceBar.style.display = "flex";
+        logBox.innerHTML =
+          '<div style="color: #999; font-style: italic; font-size: 11px;">Бросков пока не было...</div>';
+
+        document.getElementById("det-name").innerText = c.name;
+        document.getElementById("det-class").innerText = c.class;
+        document.getElementById("det-hp").innerText = c.hp;
+        document.getElementById("det-ac").innerText = c.ac;
+        document.getElementById("det-speed").innerText = c.speed;
+        document.getElementById("det-attacks").innerText = c.attacks;
+        document.getElementById("det-skills").innerText = c.skills;
+
+        const slider = document.getElementById("hp-range");
+        const hpDisplay = document.getElementById("det-hp");
+        slider.max = c.hp;
+        slider.value = c.hp;
+        slider.oninput = () => {
+          hpDisplay.innerText = slider.value;
+        };
+
+        const statsContainer = document.getElementById("stats-container");
+        statsContainer.innerHTML = "";
+        for (let [label, value] of Object.entries(c.stats)) {
+          const mod = Math.floor((value - 10) / 2);
+          const card = document.createElement("div");
+          card.className = "stat-card";
+          card.innerHTML = `<div class="stat-label">${label}</div><div class="stat-val">${value}</div><div style="font-size:11px; opacity:0.6">${
+            mod >= 0 ? "+" + mod : mod
+          }</div>`;
+          card.onclick = () => rollStat(label, mod);
+          statsContainer.appendChild(card);
+        }
+        tg.HapticFeedback.impactOccurred("light");
+      }
+
+      init();
     </script>
-</body>
+  </body>
 </html>
