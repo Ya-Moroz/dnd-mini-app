@@ -184,7 +184,7 @@
         background: transparent;
         display: flex;
         justify-content: center; /* Центрируем кубики */
-        gap: 25px; /* Равномерный отступ между ними */
+        gap: 18px; /* Равномерный отступ между ними */
         padding: 20px 0;
         z-index: 100;
         pointer-events: none;
@@ -339,7 +339,7 @@
       function rollPure(sides) {
         const res = Math.floor(Math.random() * sides) + 1;
         tg.HapticFeedback.impactOccurred("medium");
-        addToLog(`Чистый d${sides}`, res);
+        addToLog(`Кубик d${sides}`, res);
       }
 
       function rollStat(name, mod) {
