@@ -231,7 +231,7 @@
     </div>
 
     <div id="sheet">
-      <div class="back-link" onclick="location.reload()">← Назад</div>
+    
       <div class="header">
         <h1 id="det-name" contenteditable="true">Имя</h1>
         <div style="text-align: right">
@@ -367,6 +367,11 @@ tg.enableClosingConfirmation();
       }
 
       function renderCharacter(c) {
+        tg.BackButton.show();
+        tg.BackButton.onClick(() => {
+          tg.BackButton.hide();
+          location.reload();
+        });
         selector.style.display = "none";
         sheet.style.display = "block";
         diceBar.style.display = "flex";
