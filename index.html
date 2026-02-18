@@ -288,6 +288,12 @@
     <script>
       const tg = window.Telegram.WebApp;
       tg.ready();
+      tg.expand();
+      // Запрещает закрывать приложение случайным свайпом вниз
+tg.isClosingConfirmationEnabled = true; 
+
+// Красит верхнюю полоску (где часы) в цвет фона твоего приложения
+tg.setHeaderColor('#1a1a1a');
 
       const charFiles = [
         "tordin.json",
