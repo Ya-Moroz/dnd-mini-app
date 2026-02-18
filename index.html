@@ -287,13 +287,20 @@
 
     <script>
       const tg = window.Telegram.WebApp;
-      tg.ready();
-      tg.expand();
-      // Запрещает закрывать приложение случайным свайпом вниз
-tg.isClosingConfirmationEnabled = true; 
+    // 1. Сообщаем Telegram, что мы готовы
+tg.ready();
 
-// Красит верхнюю полоску (где часы) в цвет фона твоего приложения
+// 2. Раскрываем на максимум (убирает эффект шторки)
+tg.expand();
+
+// 3. Красим шапку в цвет фона (маскируем название)
 tg.setHeaderColor('#1a1a1a');
+
+// 4. ГЛАВНОЕ: Фиксируем приложение, чтобы оно не тянулось вниз
+tg.isVerticalSwipesEnabled = false; 
+
+// Дополнительно: подтверждение закрытия, чтобы не вылететь случайно
+tg.enableClosingConfirmation();
 
       const charFiles = [
         "tordin.json",
